@@ -187,20 +187,21 @@
     const centerTextPlugin = {
       id: 'centerText',
       beforeDraw(chart) {
-        const width = chart.width;
-        const height = chart.height;
-        const ctx = chart.ctx;
+        const { ctx, chartArea } = chart;
+        const centerX = (chartArea.left + chartArea.right) / 2;
+        const centerY = (chartArea.top + chartArea.bottom) / 2;
+
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         ctx.font = '700 1.2rem system-ui, -apple-system, sans-serif';
         ctx.fillStyle = '#1e293b';
-        ctx.fillText(totalApplications, width / 2, height / 2 - 8);
+        ctx.fillText(totalApplications, centerX, centerY - 8);
 
         ctx.font = '500 0.65rem system-ui, -apple-system, sans-serif';
         ctx.fillStyle = '#64748b';
-        ctx.fillText('TOTAL', width / 2, height / 2 + 10);
+        ctx.fillText('TOTAL', centerX, centerY + 10);
         ctx.restore();
       }
     };
