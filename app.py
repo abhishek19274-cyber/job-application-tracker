@@ -28,18 +28,18 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+
 db.init_app(app)
 mail = Mail(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-
-
+login_manager.login_view = 'login'
+login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "info"
 
 with app.app_context():
     db.create_all()
-
 
 
 @login_manager.user_loader
@@ -74,6 +74,37 @@ def register():
     return render_template("register.html", form=form)
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        existing_user = db.session.execute(
+            db.select(User).where(User.email == form.email.data)
+        ).scalar()
+
+        if not existing_user:
+            flash("Invalid email.")
+            return redirect(url_for('login'))
+
+        if not check_password_hash(existing_user.password_hash, form.password.data):
+            flash("Invalid password.")
+            return redirect(url_for('login'))
+
+        login_user(existing_user)
+        flash("Logged in successfully.")
+        return redirect(url_for('dashboard'))
+
+    return render_template("login.html", form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.")
+    return redirect(url_for('home'))
+
+
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
@@ -102,36 +133,15 @@ def add():
     return render_template("add_edit.html", form=form)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        existing_user = db.session.execute(
-            db.select(User).where(User.email == form.email.data)
-        ).scalar()
-
-        if not existing_user:
-            flash("Invalid email.")
-            return redirect(url_for('login'))
-
-        if not check_password_hash(existing_user.password_hash, form.password.data):
-            flash("Invalid password.")
-            return redirect(url_for('login'))
-
-        login_user(existing_user)
-        flash("Logged in successfully.")
-        return redirect(url_for('dashboard'))
-
-    return render_template("login.html", form=form)
-
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
     search = request.args.get('search', '').strip()
     status = request.args.get('status', '')
     page = request.args.get('page', 1, type=int)
+
     query = JobApplication.query.filter_by(user_id=current_user.id)
+
     if search:
         query = query.filter(JobApplication.company.ilike(f'%{search}%'))
 
@@ -140,6 +150,7 @@ def dashboard():
 
     query = query.order_by(JobApplication.date_applied.desc())
     pagination = query.paginate(page=page, per_page=10)
+
     status_counts = db.session.execute(
         db.select(JobApplication.status, func.count(JobApplication.id))
         .where(JobApplication.user_id == current_user.id)
@@ -156,14 +167,6 @@ def dashboard():
         status_dict=status_dict,
         today=date.today()
     )
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash("You have been logged out.")
-    return redirect(url_for('home'))
 
 
 @app.route('/edit/<int:app_id>', methods=['GET', 'POST'])
@@ -236,6 +239,8 @@ def send_stale_summary():
         flash(f"Failed to send email: {str(e)}")
 
     return redirect(url_for('dashboard'))
+
+
 @app.route('/api/applications')
 @login_required
 def api_applications():
@@ -243,14 +248,22 @@ def api_applications():
         db.select(JobApplication).filter_by(user_id=current_user.id)
     ).scalars().all()
     return jsonify([a.to_dict() for a in applications])
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
 @app.errorhandler(403)
 def forbidden(e):
     return render_template('403.html'), 403
+
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
