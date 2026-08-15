@@ -10,4 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping the app
-        run: curl -s https://job-application-tracker-i2h1.onrender.com/ -o /dev/null -w "Status: %{http_code}\n"
+        run: |
+          curl -s https://job-application-tracker-i2h1.onrender.com/ -o /dev/null -w "Status: %{http_code}\n"
