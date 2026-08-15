@@ -1,0 +1,178 @@
+/* --- Base Page Styles --- */
+body {
+  background: radial-gradient(circle at 15% 15%, #e0e7ff 0%, #f1f5f9 50%, #e2e8f0 100%) !important;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* --- Glassmorphism Containers --- */
+.glass {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Stat Cards --- */
+.stat-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(14px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+  border-radius: 14px;
+  padding: 1.2rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* --- Glass Search & Filter Controls --- */
+.glass-input-group .form-control,
+.glass-input-group .form-select {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9rem;
+}
+
+.glass-input-group .form-control:focus,
+.glass-input-group .form-select:focus {
+  background: #ffffff !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+/* --- Status Badges --- */
+.badge-pill-custom {
+  padding: 0.45em 0.85em;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 50rem;
+  letter-spacing: 0.2px;
+}
+
+.badge-applied { background-color: #cbd5e1; color: #334155; }
+.badge-oa { background-color: #bae6fd; color: #0369a1; }
+.badge-interview { background-color: #fde68a; color: #b45309; }
+.badge-offer { background-color: #bbf7d0; color: #15803d; }
+.badge-rejected { background-color: #fecaca; color: #b91c1c; }
+
+/* --- Table Styling --- */
+.table-custom {
+  border-collapse: separate !important;
+  border-spacing: 0 8px !important;
+}
+
+.table-custom tbody tr {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table-custom tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+}
+
+.table-custom td {
+  padding: 1rem 0.9rem !important;
+  border: none !important;
+}
+
+.table-custom td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.table-custom td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+/* --- Hero Section & Animations --- */
+.hero-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.55;
+  z-index: 0;
+  animation: float 14s ease-in-out infinite;
+}
+
+.blob-1 {
+  width: 320px; height: 320px;
+  background: #5b8def;
+  top: 10%; left: 2%;
+  animation-duration: 16s;
+}
+
+.blob-2 {
+  width: 260px; height: 260px;
+  background: #7ee8c7;
+  bottom: 5%; right: 8%;
+  animation-duration: 20s;
+  animation-delay: -4s;
+}
+
+.blob-3 {
+  width: 200px; height: 200px;
+  background: #f7b955;
+  top: 45%; right: 30%;
+  animation-duration: 18s;
+  animation-delay: -8s;
+}
+
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -40px) scale(1.1); }
+  66%  { transform: translate(-25px, 25px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.card-surface {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.table-custom tbody tr.table-stale,
+tr.table-stale {
+  background-color: rgba(254, 243, 199, 0.85) !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+tr.table-stale:hover {
+  background-color: rgba(253, 230, 138, 0.95) !important;
+}
+.table-custom tbody tr.table-stale {
+  background: rgba(254, 243, 199, 0.75) !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+.table-custom tbody tr.table-stale:hover {
+  background: rgba(253, 230, 138, 0.95) !important;
+}

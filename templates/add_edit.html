@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ mode if mode else 'Manage' }} Application — JobTrail{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-8 col-lg-6">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="card-header bg-dark text-white p-4">
+        <h4 class="fw-bold mb-0">📝 {{ mode if mode else 'Application' }}</h4>
+        <p class="text-secondary small mb-0">Track your progress and stay organized.</p>
+      </div>
+      <div class="card-body p-4 bg-white">
+        <form method="POST" enctype="multipart/form-data" novalidate>
+  {{ form.hidden_tag() }}
+
+  <!-- Visual Validation Error Alert Block -->
+  {% if form.errors %}
+    <div class="alert alert-danger rounded-3 mb-4">
+      <div class="fw-bold mb-1">Please correct the following errors:</div>
+      <ul class="mb-0 ps-3">
+        {% for field, errors in form.errors.items() %}
+          {% for error in errors %}
+            <li><strong>{{ form[field].label.text if field in form else field|title }}:</strong> {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      {{ form.company.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.company(class="form-control rounded-3", placeholder="e.g. Google") }}
+      {% for error in form.company.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+      {{ form.role.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.role(class="form-control rounded-3", placeholder="e.g. Software Engineer") }}
+      {% for error in form.role.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+      {{ form.date_applied.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.date_applied(class="form-control rounded-3", id="date_applied") }}
+      {% for error in form.date_applied.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+      {{ form.deadline.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.deadline(class="form-control rounded-3", id="deadline") }}
+      {% for error in form.deadline.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-12">
+      {{ form.status.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.status(class="form-select rounded-3") }}
+      {% for error in form.status.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-12">
+      {{ form.job_link.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.job_link(class="form-control rounded-3", placeholder="https://...") }}
+      {% for error in form.job_link.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-12">
+      {{ form.notes.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.notes(class="form-control rounded-3", rows="3", placeholder="Interview prep, recruiter info...") }}
+      {% for error in form.notes.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="col-12">
+      {{ form.file.label(class="form-label fw-semibold small text-uppercase text-muted") }}
+      {{ form.file(class="form-control rounded-3") }}
+      {% for error in form.file.errors %}
+        <span class="text-danger small d-block mt-1">{{ error }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-light border px-4 rounded-3">Cancel</a>
+    {{ form.submit(class="btn btn-primary px-4 rounded-3 fw-medium") }}
+  </div>
+</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const dateApplied = document.getElementById('date_applied');
+    const deadline = document.getElementById('deadline');
+    if (dateApplied && deadline) {
+      dateApplied.addEventListener('change', () => {
+        deadline.min = dateApplied.value;
+      });
+    }
+  });
+</script>
+{% endblock %}

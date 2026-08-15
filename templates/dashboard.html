@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — JobTrail{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h2 class="fw-bold mb-0">Dashboard</h2>
+    <p class="text-muted small mb-0">Welcome back, <span class="fw-semibold text-dark">{{ current_user.email }}</span></p>
+  </div>
+  <a href="{{ url_for('add') }}" class="btn btn-primary px-4 py-2 rounded-3 fw-medium">
+    + Add Application
+  </a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <span class="text-muted extra-small fw-bold text-uppercase">Total</span>
+      <h3 class="fw-bold mb-0 mt-1">{{ pagination.total }}</h3>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <span class="text-muted extra-small fw-bold text-uppercase">Interviews</span>
+      <h3 class="fw-bold mb-0 mt-1 text-warning">{{ status_dict.get('Interview', 0) }}</h3>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <span class="text-muted extra-small fw-bold text-uppercase">Offers</span>
+      <h3 class="fw-bold mb-0 mt-1 text-success">{{ status_dict.get('Offer', 0) }}</h3>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <span class="text-muted extra-small fw-bold text-uppercase">OA / Tests</span>
+      <h3 class="fw-bold mb-0 mt-1 text-info">{{ status_dict.get('OA/Test', 0) }}</h3>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4 align-items-stretch">
+  <div class="col-lg-8 d-flex flex-column justify-content-between">
+    <div class="glass p-3 h-100 d-flex flex-column justify-content-center">
+      <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-7">
+          <div class="input-group glass-input-group">
+            <span class="input-group-text bg-white text-muted border-end-0 rounded-start-3">🔍</span>
+            <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Search company name..." value="{{ search }}">
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="input-group glass-input-group">
+            <select name="status" class="form-select rounded-start-3">
+              <option value="">All Statuses</option>
+              <option value="Applied" {% if status == 'Applied' %}selected{% endif %}>Applied</option>
+              <option value="OA/Test" {% if status == 'OA/Test' %}selected{% endif %}>OA/Test</option>
+              <option value="Interview" {% if status == 'Interview' %}selected{% endif %}>Interview</option>
+              <option value="Offer" {% if status == 'Offer' %}selected{% endif %}>Offer</option>
+              <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <button type="submit" class="btn btn-primary px-3">Filter</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-light border rounded-end-3" title="Clear Filters">✕</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="glass p-3 h-100 d-flex flex-column justify-content-center">
+      <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <span class="fw-bold text-uppercase text-muted small">Status Breakdown</span>
+      </div>
+      {% if status_dict %}
+        <div style="height: 160px; position: relative;">
+          <canvas id="statusChart"></canvas>
+        </div>
+      {% else %}
+        <p class="text-muted small text-center my-auto">No data recorded yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if not applications %}
+  <div class="glass text-center py-5 px-3">
+    <div class="fs-1 text-muted mb-2">📁</div>
+    <h5 class="fw-bold">No applications found</h5>
+    <p class="text-muted small">Start tracking your process by creating your first entry.</p>
+    <a href="{{ url_for('add') }}" class="btn btn-primary rounded-3 px-4">+ Add Application</a>
+  </div>
+{% else %}
+  <div class="table-responsive">
+    <table class="table table-custom align-middle">
+      <thead>
+        <tr class="text-muted small text-uppercase">
+          <th>Company</th>
+          <th>Role</th>
+          <th>Applied</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th>Link</th>
+          <th>Notes</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for application in applications %}
+          <!-- STALE APPLICATION CHECK: Checks if untouched for 14+ days and not closed -->
+          {% set is_stale = application.is_stale and application.status not in ['Offer', 'Rejected'] %}
+          <tr class="{% if is_stale %}table-stale table-warning{% endif %}">
+            <td class="fw-bold text-dark">
+              {{ application.company }}
+              {% if is_stale %}
+                <span class="badge bg-warning text-dark ms-1 extra-small" title="Untouched for 2+ weeks">⚠️ Stale</span>
+              {% endif %}
+            </td>
+            <td>{{ application.role }}</td>
+            <td class="text-muted small">{{ application.date_applied.strftime('%b %d, %Y') }}</td>
+            <td class="text-muted small">{{ application.deadline.strftime('%b %d, %Y') if application.deadline else '—' }}</td>
+            <td>
+              {% if application.status == 'Applied' %}
+                <span class="badge badge-pill-custom badge-applied">Applied</span>
+              {% elif application.status == 'OA/Test' %}
+                <span class="badge badge-pill-custom badge-oa">OA / Test</span>
+              {% elif application.status == 'Interview' %}
+                <span class="badge badge-pill-custom badge-interview">Interview</span>
+              {% elif application.status == 'Offer' %}
+                <span class="badge badge-pill-custom badge-offer">Offer</span>
+              {% elif application.status == 'Rejected' %}
+                <span class="badge badge-pill-custom badge-rejected">Rejected</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ application.job_link }}" target="_blank" class="btn btn-sm btn-light border rounded-pill px-3">
+                🔗 View
+              </a>
+            </td>
+            <td class="text-muted small text-truncate" style="max-width: 180px;">{{ application.notes }}</td>
+            <td class="text-end text-nowrap">
+              <a href="{{ url_for('edit', app_id=application.id) }}" class="btn btn-sm btn-light border rounded-2 me-1">Edit</a>
+              <form action="{{ url_for('delete', app_id=application.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger rounded-2" onclick="return confirm('Delete this application?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="d-flex justify-content-between align-items-center mt-2">
+    <span class="text-muted small">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+    <ul class="pagination pagination-sm mb-0">
+      <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+        <a class="page-link rounded-start-3" href="{{ url_for('dashboard', page=pagination.prev_num, search=search, status=status) }}">Previous</a>
+      </li>
+      <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+        <a class="page-link rounded-end-3" href="{{ url_for('dashboard', page=pagination.next_num, search=search, status=status) }}">Next</a>
+      </li>
+    </ul>
+  </nav>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const statusData = {{ status_dict | tojson | safe }};
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('statusChart');
+    if (!canvas) return;
+
+    const colorMap = {
+      'Applied': '#94a3b8',
+      'OA/Test': '#38bdf8',
+      'Interview': '#f59e0b',
+      'Offer': '#22c55e',
+      'Rejected': '#ef4444'
+    };
+
+    const labels = Object.keys(statusData);
+    const dataValues = Object.values(statusData);
+    const colors = labels.map(l => colorMap[l] || '#cbd5e1');
+    const totalApplications = dataValues.reduce((a, b) => a + b, 0);
+
+    const centerTextPlugin = {
+      id: 'centerText',
+      beforeDraw(chart) {
+        const width = chart.width;
+        const height = chart.height;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.font = '700 1.2rem system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText(totalApplications, width / 2, height / 2 - 8);
+
+        ctx.font = '500 0.65rem system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('TOTAL', width / 2, height / 2 + 10);
+        ctx.restore();
+      }
+    };
+
+    new Chart(canvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: dataValues,
+          backgroundColor: colors,
+          borderWidth: 2,
+          borderColor: 'rgba(255, 255, 255, 0.8)',
+          hoverBorderColor: '#ffffff',
+          hoverOffset: 6
+        }]
+      },
+      plugins: [centerTextPlugin],
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          animateScale: true,
+          animateRotate: true,
+          duration: 1000
+        },
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 8,
+              boxHeight: 8,
+              usePointStyle: true,
+              font: { size: 10, family: 'system-ui' },
+              padding: 10
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 11 },
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: true
+          }
+        },
+        cutout: '72%'
+      }
+    });
+  });
+</script>
+{% endblock %}

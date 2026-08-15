@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}JobTrail — Track Your Job Applications{% endblock %}
+
+{% block content %}
+<div class="hero-wrap px-3 px-lg-5">
+  <span class="blob blob-1"></span>
+  <span class="blob blob-2"></span>
+  <span class="blob blob-3"></span>
+
+  <div class="row align-items-center py-5 hero-content">
+    <div class="col-lg-6">
+      <h1 class="display-5 fw-bold mb-3">📋 JobTrail</h1>
+      <p class="lead text-secondary mb-4">
+        A simple, no-nonsense tracker for your job search. Log every application,
+        attach your resume, set deadlines, and see exactly where you stand —
+        Applied, Interviewing, Offered, or Rejected — all in one dashboard.
+      </p>
+
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-2">Sign Up</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg">Log In</a>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-6 mt-5 mt-lg-0">
+      <div class="card-surface p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>Google — SWE Intern</strong>
+          <span class="badge bg-warning text-dark">Interview</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>Amazon — SDE I</strong>
+          <span class="badge bg-secondary">Applied</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>Stripe — Backend Eng</strong>
+          <span class="badge bg-success">Offer</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <strong>Meta — New Grad</strong>
+          <span class="badge bg-danger">Rejected</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-5">
+
+<div class="row text-center g-4">
+  <div class="col-md-4">
+    <div class="card-surface p-4 h-100">
+      <div class="fs-1 mb-2">🗂️</div>
+      <h5>Stay Organized</h5>
+      <p class="text-secondary mb-0">Every application in one place — company, role, status, deadline, and notes.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card-surface p-4 h-100">
+      <div class="fs-1 mb-2">🔍</div>
+      <h5>Search &amp; Filter</h5>
+      <p class="text-secondary mb-0">Find any application instantly by company name or filter by status.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card-surface p-4 h-100">
+      <div class="fs-1 mb-2">📊</div>
+      <h5>See Your Progress</h5>
+      <p class="text-secondary mb-0">A live breakdown of where your applications stand, at a glance.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
