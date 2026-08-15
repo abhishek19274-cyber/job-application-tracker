@@ -167,7 +167,7 @@ job-application-tracker/
 **Abhishek Patil**
 
 - GitHub: [@abhishek19274-cyber](https://github.com/abhishek19274-cyber)
-- LinkedIn: *add your link here*
+- LinkedIn: [Abhishek Patil](https://www.linkedin.com/in/abhishek-patil-8270b236b/)
 
 ---
 
